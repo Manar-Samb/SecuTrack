@@ -129,9 +129,9 @@ Après l'installation, les comptes suivants sont créés :
 
 | Rôle | Nom d'utilisateur | Mot de passe |
 |------|------------------|--------------|
-| Administrateur | `admin` | `admin123` |
-| Enseignant | `teacher` | `teacher123` |
-| Étudiant | `student` | `student123` |
+| Administrateur | `admin` | `.....` |
+| Enseignant | `teacher` | `.....` |
+| Étudiant | `student` | `.......` |
 
 ⚠️ **Important** : Changez ces mots de passe par défaut en production !
 
