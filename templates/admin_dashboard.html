@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Tableau de bord administrateur{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-user-cog"></i> Tableau de bord administrateur</h2>
+        <p class="text-muted">Bienvenue, {{ session.username }} !</p>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-user-graduate fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats.students }}</h4>
+                        <small>Étudiants</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-chalkboard-teacher fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats.teachers }}</h4>
+                        <small>Enseignants</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-users fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats.groups }}</h4>
+                        <small>Groupes</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-folder-open fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats.projects }}</h4>
+                        <small>Projets</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-bolt"></i> Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('manage_users') }}" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Gérer les utilisateurs
+                    </a>
+                    <a href="{{ url_for('manage_groups') }}" class="btn btn-info">
+                        <i class="fas fa-layer-group"></i> Gérer les groupes
+                    </a>
+                    <button class="btn btn-success" onclick="showCreateUserModal()">
+                        <i class="fas fa-user-plus"></i> Créer un utilisateur
+                    </button>
+                    <button class="btn btn-warning" onclick="showCreateGroupModal()">
+                        <i class="fas fa-plus"></i> Créer un groupe
+                    </button>
+                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Unassigned Students -->
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-white">
+                <h6><i class="fas fa-exclamation-triangle"></i> Étudiants non assignés</h6>
+            </div>
+            <div class="card-body">
+                {% if unassigned_students %}
+                    <div class="list-group list-group-flush">
+                        {% for student in unassigned_students %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ student[1] }}</strong>
+                                <br>
+                                <small class="text-muted">{{ student[2] }}</small>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary" 
+                                    onclick="assignToGroup({{ student[0] }}, '{{ student[1] }}')">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center small">Tous les étudiants sont assignés.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Logs -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-history"></i> Journal d'activité récente</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_logs %}
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Action</th>
+                                    <th>Détails</th>
+                                    <th>Date/Heure</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in recent_logs %}
+                                <tr>
+                                    <td>
+                                        {% if log[3] %}
+                                            {{ log[3] }}
+                                        {% else %}
+                                            <span class="text-muted">Système</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{% if 'LOGIN' in log[0] %}info{% elif 'SUBMIT' in log[0] %}success{% elif 'FAIL' in log[0] %}danger{% else %}secondary{% endif %}">
+                                            {{ log[0] }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if log[1] %}
+                                            {{ log[1][:50] }}{% if log[1]|length > 50 %}...{% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small>{{ log[2].strftime('%d/%m/%Y %H:%M:%S') }}</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucune activité récente.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Créer un nouvel utilisateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/create_user">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nom d'utilisateur *</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mot de passe temporaire *</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Rôle *</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Sélectionnez un rôle</option>
+                            <option value="student">Étudiant</option>
+                            <option value="teacher">Enseignant</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer l'utilisateur</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Create Group Modal -->
+<div class="modal fade" id="createGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Créer un nouveau groupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/create_group">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="group_name" class="form-label">Nom du groupe *</label>
+                        <input type="text" class="form-control" id="group_name" name="group_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="group_description" class="form-label">Description</label>
+                        <textarea class="form-control" id="group_description" name="group_description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="teacher_id" class="form-label">Enseignant assigné</label>
+                        <select class="form-select" id="teacher_id" name="teacher_id">
+                            <option value="">Aucun enseignant assigné</option>
+                            <!-- TODO: Populate with teachers from database -->
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer le groupe</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Assign to Group Modal -->
+<div class="modal fade" id="assignGroupModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Assigner à un groupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="/assign_to_group">
+                <div class="modal-body">
+                    <p>Assigner <strong id="studentName"></strong> à un groupe :</p>
+                    <div class="mb-3">
+                        <label for="assign_group_id" class="form-label">Groupe *</label>
+                        <select class="form-select" id="assign_group_id" name="group_id" required>
+                            <option value="">Sélectionnez un groupe</option>
+                            <!-- TODO: Populate with groups from database -->
+                        </select>
+                    </div>
+                    <input type="hidden" id="assign_user_id" name="user_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Assigner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showCreateUserModal() {
+        const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+        modal.show();
+    }
+    
+    function showCreateGroupModal() {
+        const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+        modal.show();
+    }
+    
+    function assignToGroup(userId, username) {
+        document.getElementById('assign_user_id').value = userId;
+        document.getElementById('studentName').textContent = username;
+        
+        const modal = new bootstrap.Modal(document.getElementById('assignGroupModal'));
+        modal.show();
+    }
+    
+    // Auto-refresh dashboard every 2 minutes
+    setTimeout(function() {
+        location.reload();
+    }, 120000);
+</script>
+{% endblock %}

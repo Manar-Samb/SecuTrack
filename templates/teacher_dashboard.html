@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Tableau de bord enseignant{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-chalkboard-teacher"></i> Tableau de bord enseignant</h2>
+        <p class="text-muted">Bienvenue, {{ session.username }} !</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-folder-open fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats[0] if stats else 0 }}</h4>
+                        <small>Total projets</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-clock fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats[1] if stats else 0 }}</h4>
+                        <small>En attente</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats[2] if stats else 0 }}</h4>
+                        <small>Approuvés</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-times-circle fa-2x me-3"></i>
+                    <div>
+                        <h4>{{ stats[3] if stats else 0 }}</h4>
+                        <small>Rejetés</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Assigned Groups -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-users"></i> Mes groupes assignés</h5>
+            </div>
+            <div class="card-body">
+                {% if groups %}
+                    {% for group in groups %}
+                    <div class="card mb-2">
+                        <div class="card-body py-2">
+                            <h6 class="card-title mb-1">{{ group[1] }}</h6>
+                            <p class="card-text small text-muted">{{ group[2] }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center">Aucun groupe assigné.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h6><i class="fas fa-bolt"></i> Actions rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('review_projects') }}" class="btn btn-primary">
+                        <i class="fas fa-clipboard-check"></i> Évaluer les projets
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Projects for Review -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h5><i class="fas fa-exclamation-triangle"></i> Projets en attente d'évaluation</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_projects %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Étudiant</th>
+                                    <th>Groupe</th>
+                                    <th>Date de soumission</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in pending_projects %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ project[1] }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ project[2][:50] }}{% if project[2]|length > 50 %}...{% endif %}</small>
+                                    </td>
+                                    <td>{{ project[4] }}</td>
+                                    <td>{{ project[5] }}</td>
+                                    <td>{{ project[3].strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" 
+                                                    onclick="viewProject({{ project[0] }})"
+                                                    title="Voir le projet">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-success" 
+                                                    onclick="approveProject({{ project[0] }})"
+                                                    title="Approuver">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" 
+                                                    onclick="rejectProject({{ project[0] }})"
+                                                    title="Rejeter">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Aucun projet en attente d'évaluation.</p>
+                        <p class="small text-muted">Les nouveaux projets soumis apparaîtront ici.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Project Review Modal -->
+<div class="modal fade" id="projectModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Évaluation du projet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="projectModalBody">
+                <!-- Project details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-success" id="approveBtn">
+                    <i class="fas fa-check"></i> Approuver
+                </button>
+                <button type="button" class="btn btn-danger" id="rejectBtn">
+                    <i class="fas fa-times"></i> Rejeter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comment Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="commentModalTitle">Ajouter un commentaire</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="commentForm">
+                    <div class="mb-3">
+                        <label for="teacherComment" class="form-label">Commentaire d'évaluation</label>
+                        <textarea class="form-control" 
+                                  id="teacherComment" 
+                                  rows="4" 
+                                  placeholder="Entrez votre commentaire d'évaluation..."></textarea>
+                    </div>
+                    <input type="hidden" id="projectId" value="">
+                    <input type="hidden" id="projectAction" value="">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="submitComment">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentProjectId = null;
+    
+    function viewProject(projectId) {
+        // TODO: Implement project viewing functionality
+        alert('Fonctionnalité de visualisation en cours de développement');
+    }
+    
+    function approveProject(projectId) {
+        currentProjectId = projectId;
+        document.getElementById('commentModalTitle').textContent = 'Approuver le projet';
+        document.getElementById('projectId').value = projectId;
+        document.getElementById('projectAction').value = 'approve';
+        document.getElementById('teacherComment').placeholder = 'Commentaire d\'approbation (optionnel)...';
+        
+        const modal = new bootstrap.Modal(document.getElementById('commentModal'));
+        modal.show();
+    }
+    
+    function rejectProject(projectId) {
+        currentProjectId = projectId;
+        document.getElementById('commentModalTitle').textContent = 'Rejeter le projet';
+        document.getElementById('projectId').value = projectId;
+        document.getElementById('projectAction').value = 'reject';
+        document.getElementById('teacherComment').placeholder = 'Motif du rejet (requis)...';
+        
+        const modal = new bootstrap.Modal(document.getElementById('commentModal'));
+        modal.show();
+    }
+    
+    document.getElementById('submitComment').addEventListener('click', function() {
+        const projectId = document.getElementById('projectId').value;
+        const action = document.getElementById('projectAction').value;
+        const comment = document.getElementById('teacherComment').value.trim();
+        
+        if (action === 'reject' && !comment) {
+            alert('Un commentaire est requis pour rejeter un projet.');
+            return;
+        }
+        
+        // TODO: Implement AJAX call to update project status
+        // For now, we'll use a form submission
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/evaluate_project';
+        
+        const projectIdInput = document.createElement('input');
+        projectIdInput.type = 'hidden';
+        projectIdInput.name = 'project_id';
+        projectIdInput.value = projectId;
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = action;
+        
+        const commentInput = document.createElement('input');
+        commentInput.type = 'hidden';
+        commentInput.name = 'comment';
+        commentInput.value = comment;
+        
+        form.appendChild(projectIdInput);
+        form.appendChild(actionInput);
+        form.appendChild(commentInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    });
+    
+    // Auto-refresh dashboard every 60 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 60000);
+</script>
+{% endblock %}

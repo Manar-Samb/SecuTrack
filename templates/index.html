@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Accueil{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary">
+                <i class="fas fa-shield-alt"></i> SecuTrack
+            </h1>
+            <p class="lead">Plateforme web sécurisée pour la gestion des projets étudiants</p>
+            <p class="text-muted">
+                Soumettez, suivez et évaluez vos projets académiques en toute sécurité
+            </p>
+        </div>
+
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-lock fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Sécurité Renforcée</h5>
+                        <p class="card-text">
+                            Authentification sécurisée, chiffrement des fichiers et audit complet des actions
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-users fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Gestion des Rôles</h5>
+                        <p class="card-text">
+                            Accès contrôlé selon votre rôle : étudiant, enseignant ou administrateur
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <i class="fas fa-history fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Traçabilité</h5>
+                        <p class="card-text">
+                            Historique complet des soumissions et des évaluations avec horodatage
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Pillars -->
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt"></i> Les 5 Piliers de Sécurité
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Authentification</strong> - Mots de passe hachés et sessions sécurisées
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Autorisation</strong> - Contrôle d'accès basé sur les rôles (RBAC)
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Audit</strong> - Journalisation de toutes les actions sensibles
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Confidentialité</strong> - Chiffrement AES des fichiers soumis
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                <strong>Intégrité</strong> - Hachage SHA-256 et validation des fichiers
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Roles -->
+        <div class="row mb-5">
+            <div class="col-md-4">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white text-center">
+                        <i class="fas fa-user-graduate fa-2x"></i>
+                        <h5 class="mt-2">Étudiant</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-upload text-primary"></i> Soumettre des projets</li>
+                            <li><i class="fas fa-history text-primary"></i> Consulter l'historique du groupe</li>
+                            <li><i class="fas fa-eye text-primary"></i> Suivre le statut des soumissions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white text-center">
+                        <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                        <h5 class="mt-2">Enseignant</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-clipboard-check text-success"></i> Évaluer les projets assignés</li>
+                            <li><i class="fas fa-comment text-success"></i> Commenter les soumissions</li>
+                            <li><i class="fas fa-check text-success"></i> Valider ou rejeter les travaux</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-white text-center">
+                        <i class="fas fa-user-cog fa-2x"></i>
+                        <h5 class="mt-2">Administrateur</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-users text-warning"></i> Créer les comptes utilisateurs</li>
+                            <li><i class="fas fa-layer-group text-warning"></i> Gérer les groupes</li>
+                            <li><i class="fas fa-user-tie text-warning"></i> Assigner les enseignants</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center">
+            {% if not session.user_id %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </a>
+            {% else %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-tachometer-alt"></i> Accéder au tableau de bord
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

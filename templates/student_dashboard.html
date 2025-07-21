@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Tableau de bord étudiant{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-user-graduate"></i> Tableau de bord étudiant</h2>
+        <p class="text-muted">Bienvenue, {{ session.username }} !</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Group Information -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-users"></i> Informations du groupe</h5>
+            </div>
+            <div class="card-body">
+                {% if group_info %}
+                    <h6>{{ group_info[0] }}</h6>
+                    <p class="text-muted">{{ group_info[1] }}</p>
+                    <p><strong>Enseignant :</strong> 
+                        {% if group_info[2] %}
+                            {{ group_info[2] }}
+                        {% else %}
+                            <span class="text-warning">Non assigné</span>
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p class="text-warning">Vous n'êtes assigné à aucun groupe.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-bolt"></i> Actions rapides</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('submit_project') }}" class="btn btn-success">
+                        <i class="fas fa-upload"></i> Soumettre un nouveau projet
+                    </a>
+                    <a href="{{ url_for('project_history') }}" class="btn btn-info">
+                        <i class="fas fa-history"></i> Voir l'historique complet
+                    </a>
+                    <a href="{{ url_for('change_password') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key"></i> Changer le mot de passe
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- My Projects -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-folder-open"></i> Mes projets soumis</h5>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Description</th>
+                                    <th>Statut</th>
+                                    <th>Date de soumission</th>
+                                    <th>Commentaire enseignant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in projects %}
+                                <tr>
+                                    <td><strong>{{ project[1] }}</strong></td>
+                                    <td>{{ project[2][:100] }}{% if project[2]|length > 100 %}...{% endif %}</td>
+                                    <td>
+                                        {% if project[3] == 'pending' %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% elif project[3] == 'approved' %}
+                                            <span class="badge bg-success">Approuvé</span>
+                                        {% elif project[3] == 'rejected' %}
+                                            <span class="badge bg-danger">Rejeté</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ project[4].strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        {% if project[5] %}
+                                            {{ project[5] }}
+                                        {% else %}
+                                            <span class="text-muted">Aucun commentaire</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Vous n'avez encore soumis aucun projet.</p>
+                        <a href="{{ url_for('submit_project') }}" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Soumettre votre premier projet
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Group Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="fas fa-clock"></i> Activité récente du groupe</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_activity %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Projet</th>
+                                    <th>Étudiant</th>
+                                    <th>Date</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in recent_activity %}
+                                <tr>
+                                    <td>{{ activity[0] }}</td>
+                                    <td>{{ activity[1] }}</td>
+                                    <td>{{ activity[2].strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        {% if activity[3] == 'pending' %}
+                                            <span class="badge bg-warning">En attente</span>
+                                        {% elif activity[3] == 'approved' %}
+                                            <span class="badge bg-success">Approuvé</span>
+                                        {% elif activity[3] == 'rejected' %}
+                                            <span class="badge bg-danger">Rejeté</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">Aucune activité récente dans votre groupe.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh dashboard every 30 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Connexion{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+    }
+    
+    .login-card {
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.1);
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, #3498db, #2c3e50);
+        color: white;
+        border-radius: 15px 15px 0 0;
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 2px solid #e9ecef;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+    
+    .security-info {
+        background-color: #f8f9fa;
+        border-left: 4px solid #27ae60;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 0 8px 8px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="card login-card">
+        <div class="login-header">
+            <i class="fas fa-shield-alt fa-3x mb-3"></i>
+            <h3>Connexion Sécurisée</h3>
+            <p class="mb-0">Accédez à votre espace SecuTrack</p>
+        </div>
+        
+        <div class="card-body p-4">
+            <form method="POST" id="loginForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">
+                        <i class="fas fa-user"></i> Nom d'utilisateur
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="username" 
+                           name="username" 
+                           required 
+                           autocomplete="username"
+                           placeholder="Entrez votre nom d'utilisateur">
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock"></i> Mot de passe
+                    </label>
+                    <div class="input-group">
+                        <input type="password" 
+                               class="form-control" 
+                               id="password" 
+                               name="password" 
+                               required 
+                               autocomplete="current-password"
+                               placeholder="Entrez votre mot de passe">
+                        <button class="btn btn-outline-secondary" 
+                                type="button" 
+                                id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </div>
+            </form>
+            
+            <div class="security-info">
+                <h6><i class="fas fa-info-circle text-success"></i> Informations de sécurité</h6>
+                <ul class="small mb-0">
+                    <li>Vos mots de passe sont hachés et sécurisés</li>
+                    <li>Les sessions sont chiffrées et expirées automatiquement</li>
+                    <li>Toutes les connexions sont auditées</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Demo Accounts Info (Remove in production) -->
+    <div class="card mt-4">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0"><i class="fas fa-info-circle"></i> Comptes de démonstration</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <strong>Administrateur:</strong><br>
+                    <code>admin / admin123</code>
+                </div>
+                <div class="col-md-4">
+                    <strong>Enseignant:</strong><br>
+                    <code>teacher / teacher123</code>
+                </div>
+                <div class="col-md-4">
+                    <strong>Étudiant:</strong><br>
+                    <code>student / student123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordField = document.getElementById('password');
+        const toggleIcon = this.querySelector('i');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('fa-eye');
+            toggleIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('fa-eye-slash');
+            toggleIcon.classList.add('fa-eye');
+        }
+    });
+    
+    // Form validation and security
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs.');
+            return;
+        }
+        
+        // Basic input sanitization
+        if (username.length > 50 || password.length > 100) {
+            e.preventDefault();
+            alert('Nom d\'utilisateur ou mot de passe trop long.');
+            return;
+        }
+        
+        // Disable submit button to prevent double submission
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+    });
+    
+    // Clear form on page load for security
+    window.addEventListener('load', function() {
+        document.getElementById('loginForm').reset();
+    });
+</script>
+{% endblock %}

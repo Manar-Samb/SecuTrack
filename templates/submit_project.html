@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}SecuTrack - Soumettre un projet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .file-upload-area {
+        border: 2px dashed #3498db;
+        border-radius: 10px;
+        padding: 40px;
+        text-align: center;
+        background-color: #f8f9fa;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        border-color: #2980b9;
+        background-color: #e3f2fd;
+    }
+    
+    .file-upload-area.dragover {
+        border-color: #27ae60;
+        background-color: #e8f5e8;
+    }
+    
+    .file-info {
+        background-color: #e3f2fd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .security-notice {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-upload"></i> Soumettre un nouveau projet</h4>
+            </div>
+            <div class="card-body">
+                <!-- Security Notice -->
+                <div class="security-notice">
+                    <h6><i class="fas fa-shield-alt"></i> Sécurité garantie</h6>
+                    <ul class="mb-0 small">
+                        <li>Votre fichier sera chiffré avec AES-256</li>
+                        <li>L'intégrité sera vérifiée par hachage SHA-256</li>
+                        <li>Seuls les membres de votre groupe et votre enseignant pourront y accéder</li>
+                        <li>Toutes les actions sont auditées et horodatées</li>
+                    </ul>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" id="projectForm">
+                    <!-- Project Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            <i class="fas fa-heading"></i> Titre du projet *
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="title" 
+                               name="title" 
+                               required 
+                               maxlength="200"
+                               placeholder="Entrez le titre de votre projet">
+                        <div class="form-text">Maximum 200 caractères</div>
+                    </div>
+                    
+                    <!-- Project Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label">
+                            <i class="fas fa-align-left"></i> Description du projet *
+                        </label>
+                        <textarea class="form-control" 
+                                  id="description" 
+                                  name="description" 
+                                  rows="4" 
+                                  required
+                                  placeholder="Décrivez votre projet, ses objectifs, les technologies utilisées..."></textarea>
+                        <div class="form-text">Décrivez clairement votre projet pour faciliter l'évaluation</div>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-file"></i> Fichier du projet *
+                        </label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>Glissez-déposez votre fichier ici</h5>
+                            <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
+                            <input type="file" 
+                                   class="form-control d-none" 
+                                   id="file" 
+                                   name="file" 
+                                   required
+                                   accept=".txt,.pdf,.png,.jpg,.jpeg,.gif,.doc,.docx,.zip,.rar">
+                        </div>
+                        
+                        <div id="fileInfo" class="file-info d-none">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 id="fileName" class="mb-1"></h6>
+                                    <small id="fileSize" class="text-muted"></small>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-auto" id="removeFile">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-text">
+                            <strong>Types autorisés :</strong> TXT, PDF, PNG, JPG, JPEG, GIF, DOC, DOCX, ZIP, RAR<br>
+                            <strong>Taille maximale :</strong> 16 MB
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-upload"></i> Soumettre le projet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Help Section -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h6><i class="fas fa-question-circle"></i> Conseils pour la soumission</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-check-circle text-success"></i> Bonnes pratiques</h6>
+                        <ul class="small">
+                            <li>Utilisez un titre descriptif et clair</li>
+                            <li>Décrivez les fonctionnalités principales</li>
+                            <li>Mentionnez les technologies utilisées</li>
+                            <li>Compressez les gros projets en ZIP/RAR</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-exclamation-triangle text-warning"></i> À éviter</h6>
+                        <ul class="small">
+                            <li>Fichiers corrompus ou illisibles</li>
+                            <li>Descriptions trop courtes ou vagues</li>
+                            <li>Fichiers dépassant 16 MB</li>
+                            <li>Types de fichiers non autorisés</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const removeFileBtn = document.getElementById('removeFile');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // File upload area click handler
+    fileUploadArea.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    // Drag and drop handlers
+    fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.add('dragover');
+    });
+    
+    fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.classList.remove('dragover');
+    });
+    
+    fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect();
+        }
+    });
+    
+    // File input change handler
+    fileInput.addEventListener('change', handleFileSelect);
+    
+    // Remove file handler
+    removeFileBtn.addEventListener('click', () => {
+        fileInput.value = '';
+        fileInfo.classList.add('d-none');
+        fileUploadArea.style.display = 'block';
+    });
+    
+    function handleFileSelect() {
+        const file = fileInput.files[0];
+        if (file) {
+            // Validate file size (16MB = 16 * 1024 * 1024 bytes)
+            if (file.size > 16 * 1024 * 1024) {
+                alert('Le fichier est trop volumineux. Taille maximale : 16 MB');
+                fileInput.value = '';
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = ['.txt', '.pdf', '.png', '.jpg', '.jpeg', '.gif', '.doc', '.docx', '.zip', '.rar'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (!allowedTypes.includes(fileExtension)) {
+                alert('Type de fichier non autorisé. Types acceptés : ' + allowedTypes.join(', '));
+                fileInput.value = '';
+                return;
+            }
+            
+            // Display file info
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('d-none');
+            fileUploadArea.style.display = 'none';
+        }
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Form submission handler
+    document.getElementById('projectForm').addEventListener('submit', function(e) {
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const file = fileInput.files[0];
+        
+        if (!title || !description || !file) {
+            e.preventDefault();
+            alert('Veuillez remplir tous les champs et sélectionner un fichier.');
+            return;
+        }
+        
+        // Disable submit button and show loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Soumission en cours...';
+        
+        // Show progress (simulated)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Soumission... ${progress}%`;
+            } else {
+                clearInterval(progressInterval);
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalisation...';
+            }
+        }, 200);
+    });
+    
+    // Character counter for title
+    document.getElementById('title').addEventListener('input', function() {
+        const remaining = 200 - this.value.length;
+        const counter = this.nextElementSibling;
+        counter.textContent = `${remaining} caractères restants`;
+        
+        if (remaining < 20) {
+            counter.classList.add('text-warning');
+        } else {
+            counter.classList.remove('text-warning');
+        }
+    });
+</script>
+{% endblock %}
