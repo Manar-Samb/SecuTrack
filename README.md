@@ -242,7 +242,7 @@ Ce projet est développé dans un cadre académique pour l'apprentissage de la p
 
 **Ndeye Manar SAMB**
 - Email: ndeyemanarsamb@esp.sn
-- GitHub: [@manar-vi](https://github.com/manar-vi)
+
 
 ## 🆘 Support
 
